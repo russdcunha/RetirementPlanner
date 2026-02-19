@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f0f4f8">
+<title>Assumptions & Methodology — Russell's Retirement Planner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  color:#3d4f65;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(1200px 800px at 20% -10%,rgba(37,99,235,.18),transparent 60%),
+    radial-gradient(900px 600px at 90% 0%,rgba(13,148,136,.14),transparent 55%),
+    linear-gradient(135deg,#f0f4f8,#eaf2ff);
+  background-size:140% 140%,140% 140%,100% 100%;
+  animation:bgShift 16s ease-in-out infinite alternate;
+}
+@keyframes bgShift{
+  0%{background-position:0% 0%,100% 0%,0% 0%}
+  100%{background-position:12% 8%,92% 12%,0% 0%}
+}
+
+/* ---- HEADER (matches planner exactly) ---- */
+.hd{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.78);
+  backdrop-filter:saturate(150%) blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(0,0,0,.06);padding:0 16px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  animation:hIn .7s ease both}
+@keyframes hIn{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.lg{display:flex;align-items:center;gap:12px}
+.lm{width:42px;height:42px;position:relative;animation:lIn 1s cubic-bezier(.34,1.56,.64,1) .3s both}
+@keyframes lIn{0%{transform:scale(0) rotate(-180deg);opacity:0}60%{transform:scale(1.12) rotate(8deg)}80%{transform:scale(.96) rotate(-2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.lr{position:absolute;inset:0;border:3px solid transparent;border-top-color:#2563eb;border-right-color:#0d9488;border-radius:50%;animation:sp 3s linear infinite}
+.lri{position:absolute;inset:5px;border:2px solid transparent;border-bottom-color:#d97706;border-left-color:#059669;border-radius:50%;animation:sp 2s linear infinite reverse}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lcc{position:absolute;inset:9px;background:linear-gradient(135deg,#2563eb,#0d9488);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(37,99,235,.3);color:#fff;font-size:14px;animation:pu 2s ease-in-out infinite}
+@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.ln{font-size:1.3rem;font-weight:800;color:#1a2332;line-height:1.1}
+.lne{font-style:italic;background:linear-gradient(135deg,#2563eb,#0d9488);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lsub{font-size:.62rem;font-weight:600;color:#8899aa;letter-spacing:1.5px;text-transform:uppercase}
+.badge{display:flex;align-items:center;gap:5px;background:#dbeafe;color:#2563eb;font-size:.68rem;font-weight:600;padding:5px 10px;border-radius:16px}
+.back-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:transparent;border:1.5px solid rgba(0,0,0,.08);border-radius:10px;color:#3d4f65;font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .15s}
+.back-btn:hover{border-color:#2563eb;color:#2563eb;background:rgba(37,99,235,.04)}
+
+/* ---- PAGE CONTENT ---- */
+.page{max-width:860px;margin:0 auto;padding:32px 20px 60px;animation:pgUp .6s ease .15s both}
+@keyframes pgUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.page-hero{margin-bottom:36px}
+.page-hero h1{font-size:2rem;font-weight:900;color:#1a2332;letter-spacing:-.4px;line-height:1.15;margin-bottom:8px}
+.page-hero .sub{font-size:.9rem;color:#8899aa;line-height:1.6;max-width:560px}
+.divider{height:3px;width:64px;background:linear-gradient(90deg,#2563eb,#0d9488);border-radius:99px;margin:16px 0 0}
+
+/* ---- SECTION CARDS ---- */
+.section-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:20px;padding:26px 28px;margin-bottom:18px;box-shadow:0 1px 4px rgba(0,0,0,.04);opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease}
+.section-card.visible{opacity:1;transform:none}
+.section-card:hover{box-shadow:0 8px 24px rgba(15,23,42,.08);border-color:rgba(37,99,235,.15)}
+
+.sec-label{display:inline-flex;align-items:center;gap:8px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:#8899aa;margin-bottom:14px}
+.sec-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ic1{background:#dbeafe}.ic2{background:#e0e7ff}.ic3{background:#ccfbf1}.ic4{background:#ffe4e6}.ic5{background:#fef3c7}.ic6{background:#f3e8ff}.ic7{background:#ecfdf5}.ic8{background:#fff7ed}
+
+.sec-title{font-size:1.1rem;font-weight:800;color:#1a2332;margin-bottom:12px}
+
+/* ---- ASSUMPTION ITEMS ---- */
+.assump-list{display:flex;flex-direction:column;gap:10px}
+.assump-item{display:grid;grid-template-columns:220px 1fr;gap:16px;padding:12px 14px;background:#f7f9fc;border-radius:12px;border:1px solid rgba(0,0,0,.04);align-items:start}
+@media(max-width:600px){.assump-item{grid-template-columns:1fr;gap:4px}}
+.assump-key{font-size:.78rem;font-weight:700;color:#1a2332}
+.assump-key .tag{display:inline-block;font-size:.6rem;font-weight:600;padding:2px 6px;border-radius:4px;margin-left:5px;vertical-align:middle}
+.tag-default{background:#dbeafe;color:#2563eb}
+.tag-canada{background:#ffe4e6;color:#be185d}
+.tag-calc{background:#ccfbf1;color:#059669}
+.assump-val{font-size:.82rem;color:#4a5568;line-height:1.6}
+.assump-val strong{color:#1a2332;font-weight:700}
+.assump-val a{color:#2563eb;text-decoration:none}
+.assump-val a:hover{text-decoration:underline}
+
+/* ---- RATE TABLE ---- */
+.rate-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:.78rem}
+.rate-table th{background:#f0f4f8;text-align:left;padding:7px 10px;font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:#8899aa;border-bottom:1px solid rgba(0,0,0,.06)}
+.rate-table td{padding:6px 10px;border-bottom:1px solid rgba(0,0,0,.04);color:#3d4f65;vertical-align:top}
+.rate-table tr:last-child td{border-bottom:none}
+.rate-table td:first-child{font-weight:600;color:#1a2332;white-space:nowrap}
+.rate-table .highlight td{background:rgba(37,99,235,.04)}
+
+/* ---- FORMULA BLOCK ---- */
+.formula{background:#f0f4f8;border-left:3px solid #2563eb;border-radius:0 8px 8px 0;padding:10px 14px;margin:10px 0;font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:.75rem;color:#1a2332;line-height:1.7;overflow-x:auto}
+
+/* ---- DISCLAIMER ---- */
+.disclaimer{background:linear-gradient(135deg,rgba(225,29,72,.04),rgba(239,68,68,.02));border:1px solid rgba(225,29,72,.15);border-radius:16px;padding:20px 22px;margin-top:24px}
+.disclaimer h3{font-size:.9rem;font-weight:800;color:#be185d;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.disclaimer p{font-size:.8rem;color:#6b3444;line-height:1.65}
+
+/* ---- FOOTER ---- */
+.ft2{text-align:center;padding:0 10px 10px;font-size:.68rem;color:#b0bec5}
+
+@media(max-width:480px){
+  .hd{padding:0 10px;height:56px}.ln{font-size:1.1rem}.lm{width:36px;height:36px}.badge{display:none}
+  .page{padding:20px 12px 40px}
+  .page-hero h1{font-size:1.5rem}
+  .section-card{padding:18px 16px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <div class="lg">
+    <div class="lm">
+      <div class="lr"></div><div class="lri"></div>
+      <div class="lcc">&#x26A1;</div>
+    </div>
+    <div>
+      <div class="ln">Russell's <span class="lne">Planner</span></div>
+      <div class="lsub">Canadian Retirement Calculator</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="badge">&#x1F341; 2025-2026 Rates</div>
+    <a href="index.html" class="back-btn" aria-label="Back to planner">&#x2190; Back to Planner</a>
+  </div>
+</header>
+
+<main class="page">
+  <div class="page-hero">
+    <h1>Assumptions &amp; Methodology</h1>
+    <p class="sub">A full description of every input, formula, and rate used to generate projections. All Canadian government benefit figures reflect published 2025–2026 values.</p>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 1. PROJECTION FRAMEWORK -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic1">&#x1F4CA;</span> Projection Framework</div>
+    <div class="sec-title">How the model works</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Model type</div>
+        <div class="assump-val">Deterministic year-by-year simulation. Each year from your current age to the plan-to age, the model applies growth, contributions (pre-retirement), then withdrawals (post-retirement) in sequence.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Inflation adjustment</div>
+        <div class="assump-val">All spending targets and government benefits are grown forward using the inflation rate each year: <span class="formula" style="display:inline;padding:2px 6px;font-size:.72rem">value × (1 + inflation)^years</span>. KPI summaries report government benefits in today's purchasing power (nominal ÷ inflation factor).</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Real vs. nominal portfolio</div>
+        <div class="assump-val">The "Real vs. Nominal" chart deflates each year's portfolio total by <strong>(1 + inflation)^years</strong> to show what your balance is worth in today's dollars — useful for understanding true purchasing power over time.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Sequence of operations<br>each year</div>
+        <div class="assump-val">
+          <strong>Accumulation years:</strong> Apply investment return → Add annual contributions.<br>
+          <strong>Retirement years:</strong> Apply investment return → Calculate government income → Withdraw from accounts in order (Non-Reg → TFSA → RRSP/RRIF) to cover spending gap → Apply RRIF minimums if applicable.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. INVESTMENT RETURN -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic2">&#x1F4C8;</span> Investment Return</div>
+    <div class="sec-title">Portfolio growth rate</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Default return rate <span class="tag tag-default">default 5.5%</span></div>
+        <div class="assump-val">Applied uniformly to all three account types (RRSP/LIRA, TFSA, Non-Registered) each year before contributions or withdrawals. This represents a blended nominal annual return on a balanced portfolio (roughly 60% equities / 40% fixed income).</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Compounding method</div>
+        <div class="assump-val">Annual compounding. Each account balance is multiplied by <strong>(1 + return rate)</strong> at the start of each year, before contributions are added or withdrawals are taken.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Limitations</div>
+        <div class="assump-val">The model uses a <strong>fixed rate</strong> — it does not simulate market volatility, sequence-of-returns risk, or Monte Carlo distributions. Real portfolios will vary year to year. Consider modelling a conservative rate (e.g. 4–5%) alongside an optimistic one (e.g. 7%) to bracket outcomes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. GOVERNMENT BENEFITS -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic3">&#x1F341;</span> Government Benefits</div>
+    <div class="sec-title">CPP and OAS rates &amp; adjustments</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">CPP 2026 maximum <span class="tag tag-canada">Canada</span></div>
+        <div class="assump-val">The 2026 maximum CPP retirement pension at age 65 is <strong>$1,507.65/month</strong>. The default input is $900/month, representing an average benefit for someone with a mixed employment history. Adjust to your personal CPP Statement of Contributions estimate.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">CPP early/late adjustment <span class="tag tag-calc">formula</span></div>
+        <div class="assump-val">
+          Taking CPP before 65 reduces the benefit by <strong>0.6% per month</strong> (7.2%/year). Taking it after 65 increases it by <strong>0.7% per month</strong> (8.4%/year), up to a maximum of +42% at age 70.
+          <div class="formula">multiplier = 1 − ((65 − startAge) × 12 × 0.006)   [if before 65]
+multiplier = 1 + ((startAge − 65) × 12 × 0.007)   [if after 65]</div>
+        </div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">OAS 2026 rates <span class="tag tag-canada">Canada</span></div>
+        <div class="assump-val">
+          <table class="rate-table">
+            <thead><tr><th>Age group</th><th>Monthly amount</th><th>Period</th></tr></thead>
+            <tbody>
+              <tr class="highlight"><td>65–74</td><td><strong>$742.31</strong></td><td>Jan–Mar 2026</td></tr>
+              <tr><td>75+</td><td><strong>$816.54</strong></td><td>Jan–Mar 2026 (10% supplement)</td></tr>
+            </tbody>
+          </table>
+          OAS is indexed quarterly to the Consumer Price Index. The model applies the 10% automatic supplement at age 75 within the simulation loop.
+        </div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">OAS deferral adjustment</div>
+        <div class="assump-val">Deferring OAS past 65 increases the benefit by <strong>0.6% per month</strong>, up to a maximum of +36% at age 70. The model applies this multiplier to the base monthly amount entered.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Inflation indexing of benefits</div>
+        <div class="assump-val">In the simulation, CPP and OAS are grown forward annually by the inflation rate entered. This approximates the real-world CPI indexing these programs receive, keeping benefits in line with purchasing power over time.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">OAS clawback (GIS/OAS recovery)</div>
+        <div class="assump-val">The model does <strong>not</strong> simulate the OAS recovery tax (clawback), which begins at ~$93,454 of net income in 2025. If your projected retirement income is high, actual OAS may be partially or fully clawed back. Consult a financial advisor if this applies to you.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. TAX TREATMENT -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic4">&#x1F4B8;</span> Tax Treatment</div>
+    <div class="sec-title">How taxes are applied to each account type</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Tax rate input <span class="tag tag-default">default 22%</span></div>
+        <div class="assump-val">A single flat average marginal tax rate applied to all taxable income. This is a simplification — actual Canadian tax is graduated across federal and provincial brackets. Use your estimated effective rate on income above the basic personal amount.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">RRSP / RRIF withdrawals <span class="tag tag-calc">taxable</span></div>
+        <div class="assump-val">Withdrawals are grossed up to cover the tax: <div class="formula">gross withdrawal = net amount needed ÷ (1 − tax rate)
+net received = gross withdrawal × (1 − tax rate)</div> This means if you need $10,000 after-tax and your rate is 22%, the model withdraws $12,821 from your RRSP.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">TFSA withdrawals <span class="tag tag-calc">tax-free</span></div>
+        <div class="assump-val">TFSA withdrawals are completely tax-free. The model withdraws exactly the gap amount needed — <strong>no gross-up is applied</strong>. This is a key advantage of TFSA over RRSP in retirement drawdown.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Non-registered withdrawals</div>
+        <div class="assump-val">Treated as fully taxable income in the model (no capital gains / dividend preferential treatment). In practice, capital gains are only 50% included in income (or 66.67% above the $250,000 annual threshold as of 2024 proposals). The model is conservative for non-reg accounts.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Government benefits taxation</div>
+        <div class="assump-val">CPP and OAS are taxable income. The model reduces the gross government benefit by the tax rate: <div class="formula">net government income = (CPP + OAS annual) × (1 − tax rate)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. WITHDRAWAL ORDER -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic5">&#x1F501;</span> Withdrawal Strategy</div>
+    <div class="sec-title">Order accounts are drawn down in retirement</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Drawdown sequence</div>
+        <div class="assump-val">
+          When government income (CPP + OAS) doesn't cover the spending target, the model draws from accounts in this order:<br><br>
+          <strong>1. Non-Registered</strong> — drawn first to reduce taxable growth and defer tax-sheltered accounts<br>
+          <strong>2. TFSA</strong> — drawn second; tax-free withdrawal preserves RRSP balance longer<br>
+          <strong>3. RRSP / RRIF</strong> — drawn last; taxable, so deferred as long as possible
+        </div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Limitations</div>
+        <div class="assump-val">This is a simplified, fixed-order strategy. Optimal real-world drawdown often involves drawing from all three accounts simultaneously for tax bracket management. A financial planner can model personalized melt-down strategies.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. RRIF CONVERSION -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic6">&#x1F4CB;</span> RRIF Minimum Withdrawals</div>
+    <div class="sec-title">Mandatory RRIF drawdown rules</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Conversion age <span class="tag tag-canada">Canada</span></div>
+        <div class="assump-val">RRSPs must be converted to a RRIF by December 31 of the year you turn <strong>71</strong>. The model begins enforcing RRIF minimums at age <strong>72</strong> (the first year a minimum withdrawal is required after conversion).</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Minimum withdrawal rates</div>
+        <div class="assump-val">
+          The minimum is a percentage of the RRIF balance at the <em>start of the year</em> (pre-withdrawal snapshot). Selected rates:
+          <table class="rate-table" style="margin-top:8px">
+            <thead><tr><th>Age</th><th>Min %</th><th>Age</th><th>Min %</th><th>Age</th><th>Min %</th></tr></thead>
+            <tbody>
+              <tr><td>72</td><td>5.40%</td><td>80</td><td>6.82%</td><td>88</td><td>10.25%</td></tr>
+              <tr class="highlight"><td>75</td><td>5.82%</td><td>83</td><td>7.71%</td><td>90</td><td>11.92%</td></tr>
+              <tr><td>78</td><td>6.36%</td><td>85</td><td>8.51%</td><td>95+</td><td>20.00%</td></tr>
+            </tbody>
+          </table>
+          Full schedule per CRA prescribed factors (2024 rules).
+        </div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Excess RRIF income handling</div>
+        <div class="assump-val">If the RRIF minimum exceeds what is needed to cover the spending gap, the excess (net of tax) flows into the Non-Registered account. This reflects a common real-world strategy of parking forced RRIF withdrawals in non-reg.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. SPENDING MODEL -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic7">&#x1F6CD;</span> Spending Model</div>
+    <div class="sec-title">How retirement spending evolves over time</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Flat (Inflation) model</div>
+        <div class="assump-val">Spending grows each year solely by the inflation rate. Your real (inflation-adjusted) spending stays constant throughout retirement — a simple, conservative assumption.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Smile Curve model <span class="tag tag-default">default</span></div>
+        <div class="assump-val">
+          Based on research by David Blanchett (Morningstar, 2013) and others showing retirees typically spend more in early active retirement, less in mid-retirement, then more again in late retirement (health care). The model applies:
+          <div class="formula">Ages 65–74:  multiplier = 1.00  (full spending, "Go-Go" years)
+Ages 75–84:  multiplier decreases by 2% per year, flooring at 0.80
+Ages 85+:    multiplier increases by 3.5% per year, capping at 1.15</div>
+          All spending is also indexed forward by inflation each year.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. WITHDRAWAL RATE -->
+  <div class="section-card">
+    <div class="sec-label"><span class="sec-icon ic8">&#x1F4B9;</span> Withdrawal Rate &amp; 4% Rule</div>
+    <div class="sec-title">How the withdrawal rate KPI is calculated</div>
+    <div class="assump-list">
+      <div class="assump-item">
+        <div class="assump-key">Calculation <span class="tag tag-calc">formula</span></div>
+        <div class="assump-val">
+          The withdrawal rate shown in the KPI card is calculated at the <strong>first year of retirement</strong>:
+          <div class="formula">withdrawal rate = (total portfolio withdrawals in year 1) ÷ (total portfolio at retirement) × 100</div>
+          Portfolio withdrawals include Non-Reg + TFSA + gross RRSP withdrawal.
+        </div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">4% guideline</div>
+        <div class="assump-val">The 4% rule (Bengen, 1994) is a widely cited guideline suggesting a 4% initial withdrawal rate from a balanced portfolio is sustainable over a 30-year retirement. The model flags rates above 4% as a caution. This is a heuristic, not a guarantee — especially relevant given Canadian tax structures and CPP/OAS offsets.</div>
+      </div>
+      <div class="assump-item">
+        <div class="assump-key">Government income offset</div>
+        <div class="assump-val">CPP and OAS income directly reduces how much you need to draw from your portfolio. A strong CPP/OAS combination can significantly lower your withdrawal rate, making the 4% guideline more achievable even with a modest nest egg.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <h3>&#x26A0; Important Disclaimer</h3>
+    <p>This calculator is for <strong>illustrative and educational purposes only</strong>. It does not constitute financial, tax, or legal advice. Results are projections based on the inputs and assumptions described above — actual outcomes will differ due to market volatility, tax law changes, personal circumstances, and other factors not modelled here. The RRIF minimum rates, CPP maximums, and OAS amounts reflect published 2025–2026 values and will change over time. <strong>Consult a licensed financial planner, tax advisor, or investment advisor</strong> before making retirement planning decisions.</p>
+  </div>
+
+  <footer class="ft2" style="margin-top:28px">&#x1F341; Russell's Retirement Planner &mdash; Assumptions &amp; Methodology &mdash; 2025-2026 Canadian Rates</footer>
+</main>
+
+<script>
+// Staggered reveal on scroll (IntersectionObserver)
+(function(){
+  var cards = document.querySelectorAll('.section-card');
+  if(!('IntersectionObserver' in window)){
+    cards.forEach(function(c){c.classList.add('visible');});
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:0.08});
+  cards.forEach(function(c){io.observe(c);});
+})();
+</script>
+</body>
+</html>
